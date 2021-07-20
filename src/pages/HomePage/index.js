@@ -1,21 +1,44 @@
-import React, { useState, useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import axios from "axios";
+import { useHistory } from "react-router-dom";
 import Header from "../../components/Header";
 import useAuthorization from "../../hooks/useAuthentication";
-import { Container } from "./styles";
+import { GlobalStateContext } from "../../global/GlobalStateContext";
+import {
+  Container,
+  AvatarImg,
+  AuthorInfo,
+  PhotoContainer,
+  PostImg,
+  PostInfo,
+  ButtonContent,
+  NickInfo,
+} from "./styles";
+import { makeStyles } from "@material-ui/core/styles";
+import Button from "@material-ui/core/Button";
+import AddCircleIcon from "@material-ui/icons/AddCircle";
+import AddIcon from "@material-ui/icons/Add";
+import { goToPostPage } from "../../routes/coordinator";
+
+const useStyles = makeStyles((theme) => ({
+  button: {},
+}));
 
 export default function HomePage() {
-  const [photos, setPhotos] = useState([]);
-  useAuthorization();
+  const history = useHistory();
+  const classes = useStyles();
+  const { photos, setPhotos } = useContext(GlobalStateContext);
+  const token = useAuthorization();
 
   useEffect(() => {
-    getPhotos();
-  }, []);
+    if (token) {
+      getPhotos();
+    }
+  }, [token]);
 
   const getPhotos = () => {
-    const token = window.localStorage.getItem("token");
     axios
-      .get("https://backend-fullstack-labenu.herokuapp.com/image/all", {
+      .get("http://ec2-54-196-35-219.compute-1.amazonaws.com/photo/getAll", {
         headers: {
           Authorization: token,
         },
@@ -28,14 +51,37 @@ export default function HomePage() {
       });
   };
   return (
-    <Container>
-      <Header />
-      {photos &&
-        photos.map((item) => {
-          return <img src={item.file} />;
-        })}
+    token && (
+      <Container>
+        <Header />
+        <ButtonContent>
+          <Button
+            onClick={() => goToPostPage(history)}
+            variant="contained"
+            color="default"
+            startIcon={<AddCircleIcon />}
+          >
+            Enviar imagem
+          </Button>
+        </ButtonContent>
+        <PhotoContainer>
+          {photos &&
+            photos.map((item) => {
+              return (
+                <div>
+                  <AuthorInfo>
+                    <AvatarImg src={item.avatar} />
+                    <NickInfo> {item.nickname}</NickInfo>
+                  </AuthorInfo>
 
-      <div>HOME PAGE</div>
-    </Container>
+                  <PostImg src={item.file} />
+
+                  <PostInfo>Numero de curtidas {item.description}</PostInfo>
+                </div>
+              );
+            })}
+        </PhotoContainer>
+      </Container>
+    )
   );
 }

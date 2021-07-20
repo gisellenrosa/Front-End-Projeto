@@ -32,9 +32,12 @@ export default function LoginPage() {
       const body = form;
 
       axios
-        .post("https://backend-fullstack-labenu.herokuapp.com/user/login", body)
+        .post(
+          "http://ec2-54-196-35-219.compute-1.amazonaws.com/user/login",
+          body
+        )
         .then((res) => {
-          window.localStorage.setItem("token", res.data.token);
+          window.localStorage.setItem("token", res.data.response.token);
           history.push("/home");
         })
         .catch((err) => {

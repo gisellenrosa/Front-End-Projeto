@@ -36,12 +36,12 @@ export default function SignUpPage() {
 
       axios
         .post(
-          "https://backend-fullstack-labenu.herokuapp.com/user/signup",
+          "http://ec2-54-196-35-219.compute-1.amazonaws.com/user/signup",
           body
         )
         .then((res) => {
           window.localStorage.setItem("token", res.data.token);
-          history.push("/");
+          history.push("/home");
         })
         .catch((err) => {
           alert("Dados inválidos, verifique e tente novamente");
